@@ -37,7 +37,6 @@ export class VideoRoomsGateway
     );
   }
   private shareRoomsInfo() {
-    console.log(this.getClientRooms(), 'this.getClientRooms()');
     this.server.emit(ACTIONS.SHARE_ROOMS, {
       rooms: this.getClientRooms(),
     });
