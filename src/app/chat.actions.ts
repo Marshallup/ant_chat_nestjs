@@ -9,4 +9,7 @@ export const enum ACTIONS {
   RELAY_ICE = 'relay-ice',
   ICE_CANDIDATE = 'ice-candidate',
   SESSION_DESCRIPTION = 'session-description',
+  CLIENT_READY_CONNECT = 'client_ready_connect',
+  ERROR_ROOM_CONNECTION = 'error_room_connection',
+  SUCCESS_ROOM_CONNECTION = 'success_room_connection',
 }

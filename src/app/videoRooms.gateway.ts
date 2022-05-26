@@ -79,14 +79,8 @@ export class VideoRoomsGateway
   }
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    client.on(ACTIONS.JOIN, (config) => {
+    client.on(ACTIONS.CLIENT_READY_CONNECT, (config) => {
       const { roomID } = config;
-      const { rooms: joinedRooms } = client;
-
-      if (Array.from(joinedRooms).includes(roomID)) {
-        return console.warn(`Уже подключен к комнате ${roomID}`);
-      }
-
       const clientsInRoom = this.getClientsByRoomID(roomID);
 
       clientsInRoom.forEach((cliendID) => {
@@ -95,13 +89,36 @@ export class VideoRoomsGateway
           createOffer: false,
         });
 
-        client.emit(ACTIONS.ADD_PEER, {
-          peerID: cliendID,
-          createOffer: true,
-        });
+        if (cliendID !== client.id) {
+          client.emit(ACTIONS.ADD_PEER, {
+            peerID: cliendID,
+            createOffer: true,
+          });
+        }
       });
+    });
+    client.on(ACTIONS.JOIN, (config) => {
+      const { roomID } = config;
+      const { rooms: joinedRooms } = client;
+
+      if (!this.validRoomID(roomID)) {
+        client.emit(ACTIONS.ERROR_ROOM_CONNECTION, {
+          error: true,
+          message: 'Не валидный айди комнаты',
+        });
+        return console.warn('Не валидный айди комнаты');
+      }
+      if (Array.from(joinedRooms).includes(roomID)) {
+        return console.warn(`Уже подключен к комнате ${roomID}`);
+      }
 
       client.join(roomID);
+
+      client.emit(ACTIONS.SUCCESS_ROOM_CONNECTION, {
+        success: true,
+        message: 'Успешный вход в комнату',
+      });
+
       this.shareRoomsInfo();
 
       this.logger.log(`Клиент ${client.id} подключился к комнате ${roomID}`);
