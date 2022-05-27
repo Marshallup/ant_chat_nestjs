@@ -84,12 +84,12 @@ export class VideoRoomsGateway
       const clientsInRoom = this.getClientsByRoomID(roomID);
 
       clientsInRoom.forEach((cliendID) => {
-        this.server.to(cliendID).emit(ACTIONS.ADD_PEER, {
-          peerID: client.id,
-          createOffer: false,
-        });
-
         if (cliendID !== client.id) {
+          this.server.to(cliendID).emit(ACTIONS.ADD_PEER, {
+            peerID: client.id,
+            createOffer: false,
+          });
+
           client.emit(ACTIONS.ADD_PEER, {
             peerID: cliendID,
             createOffer: true,
@@ -106,7 +106,7 @@ export class VideoRoomsGateway
           error: true,
           message: 'Не валидный айди комнаты',
         });
-        return console.warn('Не валидный айди комнаты');
+        return;
       }
       if (Array.from(joinedRooms).includes(roomID)) {
         return console.warn(`Уже подключен к комнате ${roomID}`);
